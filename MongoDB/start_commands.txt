@@ -1,0 +1,14 @@
+In CMD:
+docker -d Ubuntu
+
+-> Docker Desktop starten
+
+Starten 
+docker compose up -d
+
+Neu bauen 
+docker compose up --build
+
+
+Löscht auch das Volume (Achtung: Daten weg!)
+docker compose down -v

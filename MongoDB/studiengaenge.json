@@ -1,0 +1,6 @@
+[
+    { "kuerzel": "AIN", "name": "Angewandte Informatik", "abschluss": "Bachelor" },
+    { "kuerzel": "WIN", "name": "Wirtschaftsinformatik", "abschluss": "Bachelor" },
+    { "kuerzel": "GIB", "name": "Gesundheitsinformatik", "abschluss": "Bachelor" },
+    { "kuerzel": "MSI", "name": "Mobile Systeme", "abschluss": "Master" }
+]
