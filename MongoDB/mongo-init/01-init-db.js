@@ -9,27 +9,11 @@ db.createCollection("studiengaenge", {
       properties: {
         kuerzel: { bsonType: "string" },
         name: { bsonType: "string" },
-        abschluss: { enum: ["Bachelor", "Master"] }
-      }
-    }
-  }
+        abschluss: { bsonType: "string", enum: ["Bachelor", "Master"] },
+      },
+    },
+  },
 });
-
-// Studiengänge einfügen und IDs speichern
-const result = db.studiengaenge.insertMany([
-  { kuerzel: "AIN", name: "Angewandte Informatik", abschluss: "Bachelor" },
-  { kuerzel: "WIN", name: "Wirtschaftsinformatik", abschluss: "Bachelor" },
-  { kuerzel: "GIB", name: "Gesundheitsinformatik", abschluss: "Master" },
-  { kuerzel: "MSI", name: "Management und Systemintegration", abschluss: "Master" }
-]);
-
-// IDs speichern
-const ainId = result.insertedIds[0];
-const winId = result.insertedIds[1];
-const gibId = result.insertedIds[2];
-const msiId = result.insertedIds[3];
-
-
 
 // Vorlesungen Collection erstellen
 db.createCollection("vorlesungen", {
@@ -48,63 +32,418 @@ db.createCollection("vorlesungen", {
           required: ["$ref", "$id"],
           properties: {
             $ref: { bsonType: "string" },
-            $id: { bsonType: "objectId" }
-          }
-        }
-      }
-    }
-  }
+            $id: { bsonType: "objectId" },
+          },
+        },
+      },
+    },
+  },
 });
 
-// Vorlesungen einfügen
-db.vorlesungen.insertMany([
-  // AIN
-  { name: "Programmierung 1", dozent: "Prof. Dr. Meier", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "AIN" },
-  { name: "Mathematik für Informatik", dozent: "Dr. Schulz", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "AIN" },
-  { name: "Datenbanken", dozent: "Prof. Dr. Winkler", semester: 2, sws: 4, ects: 6, studiengang_kuerzel: "AIN" },
-  { name: "Betriebssysteme", dozent: "Dr. Lang", semester: 2, sws: 3, ects: 5, studiengang_kuerzel: "AIN" },
-  { name: "Softwaretechnik", dozent: "Prof. Weber", semester: 3, sws: 4, ects: 6, studiengang_kuerzel: "AIN" },
-  { name: "Netzwerke", dozent: "Dr. Fuchs", semester: 3, sws: 3, ects: 5, studiengang_kuerzel: "AIN" },
-  { name: "Künstliche Intelligenz", dozent: "Prof. Becker", semester: 4, sws: 4, ects: 6, studiengang_kuerzel: "AIN" },
-  { name: "Webentwicklung", dozent: "Dr. Hofmann", semester: 4, sws: 3, ects: 5, studiengang_kuerzel: "AIN" },
-  { name: "IT-Sicherheit", dozent: "Prof. Sommer", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "AIN" },
-  { name: "Datenanalyse", dozent: "Dr. Peters", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "AIN" },
-
-  // WIN
-  { name: "Betriebswirtschaftslehre", dozent: "Prof. Klein", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "WIN" },
-  { name: "Wirtschaftsrecht", dozent: "Dr. Lotz", semester: 1, sws: 3, ects: 5, studiengang_kuerzel: "WIN" },
-  { name: "Datenbanken für Wirtschaftsinformatik", dozent: "Prof. Meissner", semester: 2, sws: 4, ects: 6, studiengang_kuerzel: "WIN" },
-  { name: "Geschäftsprozessmanagement", dozent: "Dr. Krüger", semester: 2, sws: 3, ects: 5, studiengang_kuerzel: "WIN" },
-  { name: "IT-Management", dozent: "Prof. Haag", semester: 3, sws: 4, ects: 6, studiengang_kuerzel: "WIN" },
-  { name: "IT-Projektmanagement", dozent: "Dr. Wagner", semester: 3, sws: 3, ects: 5, studiengang_kuerzel: "WIN" },
-  { name: "E-Business", dozent: "Prof. Lang", semester: 4, sws: 3, ects: 5, studiengang_kuerzel: "WIN" },
-  { name: "Business Intelligence", dozent: "Dr. Barth", semester: 4, sws: 4, ects: 6, studiengang_kuerzel: "WIN" },
-  { name: "Informationssysteme", dozent: "Prof. Otto", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "WIN" },
-  { name: "IT-Controlling", dozent: "Dr. Frank", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "WIN" },
-
-  // GIB
-  { name: "Gesundheitsinformatik", dozent: "Prof. Adler", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "GIB" },
-  { name: "Medizinische Informationssysteme", dozent: "Dr. Pfeiffer", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "GIB" },
-  { name: "Pflegeprozessmanagement", dozent: "Prof. Hartmann", semester: 2, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-  { name: "E-Health", dozent: "Dr. Brandt", semester: 2, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-  { name: "Telemedizin", dozent: "Prof. Sommer", semester: 3, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-  { name: "Datenschutz im Gesundheitswesen", dozent: "Dr. Schwarz", semester: 3, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-  { name: "Medizintechnik", dozent: "Prof. Berger", semester: 4, sws: 4, ects: 6, studiengang_kuerzel: "GIB" },
-  { name: "Gesundheitsökonomie", dozent: "Dr. Fischer", semester: 4, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-  { name: "Prozessdigitalisierung", dozent: "Prof. Jäger", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-  { name: "IT-Architektur im Gesundheitswesen", dozent: "Dr. Neumann", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "GIB" },
-
-  // MSI
-  { name: "IT-Systeme", dozent: "Prof. Koch", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "MSI" },
-  { name: "Netzwerktechnik", dozent: "Dr. Schulze", semester: 1, sws: 4, ects: 6, studiengang_kuerzel: "MSI" },
-  { name: "Datenkommunikation", dozent: "Prof. Martin", semester: 2, sws: 3, ects: 5, studiengang_kuerzel: "MSI" },
-  { name: "Systemintegration", dozent: "Dr. Hess", semester: 2, sws: 4, ects: 6, studiengang_kuerzel: "MSI" },
-  { name: "IT-Service-Management", dozent: "Prof. Lorenz", semester: 3, sws: 3, ects: 5, studiengang_kuerzel: "MSI" },
-  { name: "Cloud-Systeme", dozent: "Dr. Engel", semester: 3, sws: 3, ects: 5, studiengang_kuerzel: "MSI" },
-  { name: "Cybersecurity", dozent: "Prof. Roth", semester: 4, sws: 4, ects: 6, studiengang_kuerzel: "MSI" },
-  { name: "IT-Compliance", dozent: "Dr. Weber", semester: 4, sws: 3, ects: 5, studiengang_kuerzel: "MSI" },
-  { name: "Projektmanagement", dozent: "Prof. Sauer", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "MSI" },
-  { name: "IT-Architektur", dozent: "Dr. Jung", semester: 5, sws: 3, ects: 5, studiengang_kuerzel: "MSI" }
+// Studiengänge einfügen und IDs speichern
+const result = db.studiengaenge.insertMany([
+  { kuerzel: "AIN", name: "Angewandte Informatik", abschluss: "Bachelor" },
+  { kuerzel: "WIN", name: "Wirtschaftsinformatik", abschluss: "Bachelor" },
+  { kuerzel: "GIB", name: "Gesundheitsinformatik", abschluss: "Bachelor" },
+  {
+    kuerzel: "MSI",
+    name: "Management und Systemintegration",
+    abschluss: "Master",
+  },
 ]);
 
-print("Daten eingefügt!");
+// IDs speichern
+const ainId = result.insertedIds[0];
+const winId = result.insertedIds[1];
+const gibId = result.insertedIds[2];
+const msiId = result.insertedIds[3];
+
+db.vorlesungen.insertMany([
+  {
+    name: "Programmierung 1",
+    dozent: "Prof. Müller",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Programmierung 2",
+    dozent: "Prof. Müller",
+    semester: 2,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Datenbanken",
+    dozent: "Prof. Schneider",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Algorithmen und Datenstrukturen",
+    dozent: "Prof. Weber",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Software Engineering",
+    dozent: "Prof. Fischer",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Betriebssysteme",
+    dozent: "Prof. Klein",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 7,
+    ects: 5,
+  },
+  {
+    name: "Rechnernetze",
+    dozent: "Prof. Braun",
+    semester: 5,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "IT-Sicherheit",
+    dozent: "Prof. Wagner",
+    semester: 5,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Webentwicklung",
+    dozent: "Prof. Hoffmann",
+    semester: 6,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Künstliche Intelligenz",
+    dozent: "Prof. Lehmann",
+    semester: 6,
+    studiengang: { $ref: "studiengaenge", $id: ainId },
+    sws: 4,
+    ects: 5,
+  },
+]);
+
+db.vorlesungen.insertMany([
+  {
+    name: "Einführung Wirtschaftsinformatik",
+    dozent: "Prof. Becker",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "BWL Grundlagen",
+    dozent: "Prof. Schulz",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Programmierung",
+    dozent: "Prof. Müller",
+    semester: 2,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Datenbanken",
+    dozent: "Prof. Schneider",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Geschäftsprozessmanagement",
+    dozent: "Prof. Fischer",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "ERP-Systeme",
+    dozent: "Prof. Wagner",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "IT-Controlling",
+    dozent: "Prof. Braun",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "E-Business",
+    dozent: "Prof. Hoffmann",
+    semester: 5,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 9,
+    ects: 5,
+  },
+  {
+    name: "Data Analytics",
+    dozent: "Prof. Lehmann",
+    semester: 5,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "IT-Projektmanagement",
+    dozent: "Prof. Klein",
+    semester: 6,
+    studiengang: { $ref: "studiengaenge", $id: winId },
+    sws: 4,
+    ects: 5,
+  },
+]);
+
+db.vorlesungen.insertMany([
+  {
+    name: "Medizinische Grundlagen",
+    dozent: "Prof. Meier",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Einführung Gesundheitsinformatik",
+    dozent: "Prof. Schulz",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Programmierung",
+    dozent: "Prof. Müller",
+    semester: 2,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Datenbanken im Gesundheitswesen",
+    dozent: "Prof. Schneider",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Krankenhausinformationssysteme",
+    dozent: "Prof. Fischer",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Medizinische Dokumentation",
+    dozent: "Prof. Wagner",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "IT-Sicherheit im Gesundheitswesen",
+    dozent: "Prof. Braun",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Telemedizin",
+    dozent: "Prof. Hoffmann",
+    semester: 5,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Gesundheitsdatenanalyse",
+    dozent: "Prof. Lehmann",
+    semester: 5,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Qualitätsmanagement im Gesundheitswesen",
+    dozent: "Prof. Klein",
+    semester: 6,
+    studiengang: { $ref: "studiengaenge", $id: gibId },
+    sws: 8,
+    ects: 5,
+  },
+]);
+
+db.vorlesungen.insertMany([
+  {
+    name: "IT-Strategie",
+    dozent: "Prof. Becker",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Enterprise Architecture",
+    dozent: "Prof. Lehmann",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Cloud Computing",
+    dozent: "Prof. Lehmann",
+    semester: 2,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "IT-Sicherheitsmanagement",
+    dozent: "Prof. Schneider",
+    semester: 2,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "DevOps",
+    dozent: "Prof. Becker",
+    semester: 2,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Microservices Architektur",
+    dozent: "Prof. Wagner",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "IT-Governance",
+    dozent: "Prof. Becker",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 6,
+    ects: 5,
+  },
+  {
+    name: "Digitale Transformation",
+    dozent: "Prof. Hoffmann",
+    semester: 3,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Forschungsmethoden",
+    dozent: "Prof. Lehmann",
+    semester: 1,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 5,
+  },
+  {
+    name: "Masterprojekt",
+    dozent: "Prof. Becker",
+    semester: 4,
+    studiengang: { $ref: "studiengaenge", $id: msiId },
+    sws: 4,
+    ects: 10,
+  },
+]);
+
+/*-------------------------------------------------------------------------------- */
+
+db.abt.insertMany([
+  { anr: "K51", name: "Entwicklung", ort: "Erlangen" },
+  { anr: "K53", name: "Buchhaltung", ort: "Nürnberg" },
+  { anr: "K54", name: "Hochschule", ort: "Konstanz" },
+  { anr: "K55", name: "Personal", ort: "Nürnberg" },
+]);
+
+db.pers.insertOne({
+  pnr: 123,
+  name: "Mueller",
+  jahrg: 1980,
+  eindat: new Date("2000-09-01"),
+  gehalt: 88000,
+  beruf: "Kaufmann",
+  abteilung: new DBRef("abt", db.abt.findOne({ name: "Entwicklung" })._id),
+});
+db.pers.insertOne({
+  pnr: 406,
+  name: "Coy",
+  jahrg: 1972,
+  eindat: new Date("2006-09-01"),
+  gehalt: 100000,
+  beruf: "Programmierer",
+  vorgesetzter: new DBRef("pers", db.pers.findOne({ name: "Mueller" })._id),
+  abteilung: new DBRef("abt", db.abt.findOne({ name: "Personal" })._id),
+});
+db.pers.insertOne({
+  pnr: 829,
+  name: "Schmidt",
+  jahrg: 1982,
+  eindat: new Date("2010-06-01"),
+  gehalt: 94000,
+  beruf: "Kaufmann",
+  vorgesetzter: new DBRef("pers", db.pers.findOne({ name: "Mueller" })._id),
+  abteilung: new DBRef("abt", db.abt.findOne({ name: "Buchhaltung" })._id),
+});
+db.pers.insertOne({
+  pnr: 874,
+  name: "Abel",
+  eindat: new Date("2014-05-01"),
+  gehalt: 82000,
+  beruf: "Softw.Entwickler",
+  vorgesetzter: new DBRef("pers", db.pers.findOne({ name: "Schmidt" })._id),
+  abteilung: new DBRef("abt", db.abt.findOne({ name: "Personal" })._id),
+});
+
+db.pers.insertOne({
+  pnr: 503,
+  name: "Junghans",
+  jahrg: 1997,
+  gehalt: 80000,
+  beruf: "Programmierer",
+  vorgesetzter: new DBRef("pers", db.pers.findOne({ name: "Mueller" })._id),
+  abteilung: new DBRef("abt", db.abt.findOne({ name: "Entwicklung" })._id),
+});
