@@ -1,0 +1,128 @@
+==================================================
+a) Welches sind die drei häufigsten Directors, mit denen Tom Hanks zusammen gedreht hat?
+   Geben Sie die Director-Namen und die Anzahl gemeinsamer Filme aus.
+==================================================
+
+Query:
+    MATCH (tom:Person {name: "Tom Hanks"})-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+    RETURN director.name AS Director, count(movie) AS Collaborations
+    ORDER BY Collaborations DESC
+    LIMIT 3
+
+Erklärung:
+    1. Finde Tom Hanks als Person-Node.
+    2. Traversiere über ACTED_IN zu allen Filmen, in denen er mitgespielt hat.
+    3. Traversiere rückwärts über DIRECTED zu den jeweiligen Regisseuren.
+    4. Zähle die gemeinsamen Filme pro Regisseur.
+    5. Sortiere absteigend und begrenze auf die Top 3.
+
+Ausgabe:
+    Director             Collaborations
+    "Nora Ephron"        2
+    "Ron Howard"         2
+    "Robert Zemeckis"    2
+
+--------------------------------------------------
+
+==================================================
+b) Fügen Sie eine KNOWS-Beziehung zwischen allen Akteuren (Regisseuren und
+   Schauspielern) ein, die zusammen einen Film gedreht haben. Die Relation soll zwischen
+   allen Akteuren, auch z.B. zwischen Schauspielern untereinander angelegt werden.
+   Stellen Sie aber sicher, dass eine Person sich nicht selbst kennt.
+   Zählen Sie anschliessend die Anzahl eingefügter Relationen.
+==================================================
+
+Query (KNOWS einfügen):
+    MATCH (p1:Person)-[:ACTED_IN|DIRECTED]->(movie:Movie)<-[:ACTED_IN|DIRECTED]-(p2:Person)
+    WHERE p1 <> p2
+    MERGE (p1)-[:KNOWS]->(p2)
+
+Query (Anzahl zählen):
+    MATCH ()-[:KNOWS]->()
+    RETURN count(*) AS AnzahlKNOWS
+
+Query (Eindeutige Paare):
+    MATCH ()-[:KNOWS]->()
+    RETURN count(*) / 2 AS EindeutigePaare
+
+Erklärung:
+    1. Matche alle Personen-Paare, die über ACTED_IN oder DIRECTED mit demselben Film verbunden sind.
+    2. WHERE p1 <> p2 verhindert, dass eine Person sich selbst kennt.
+    3. MERGE legt die KNOWS-Beziehung nur an, wenn sie noch nicht existiert (keine Duplikate).
+    4. Die zweite Query zählt alle gerichteten KNOWS-Beziehungen in der Datenbank.
+       Hinweis: Da MERGE p1->p2 und p2->p1 separat anlegt, ist die Anzahl doppelt so groß wie die eindeutigen Paare.
+
+Ausgabe:
+    1) Created 1060 relationships, completed after 16 ms.
+    2) AnzahlKNOWS:    1060
+    3) EindeutigePaare: 530
+
+--------------------------------------------------
+
+==================================================
+c) Geben Sie Empfehlungen für mögliche Filmpartner von Keanu Reeves an.
+   Diese sollen Keanu Reeves nicht direkt kennen, aber Bekannte sollen sie kennen.
+==================================================
+
+Query:
+    MATCH (keanu:Person {name: "Keanu Reeves"})-[:KNOWS]->(bekannter:Person)-[:KNOWS]->(empfehlung:Person)
+    WHERE NOT (keanu)-[:KNOWS]->(empfehlung)
+    AND keanu <> empfehlung
+    RETURN DISTINCT empfehlung.name AS Empfehlung
+
+Erklärung:
+    1. Starte bei Keanu Reeves und gehe zwei KNOWS-Schritte weiter (Bekannter -> Empfehlung).
+    2. WHERE NOT (keanu)-[:KNOWS]->(empfehlung) schließt alle aus, die Keanu bereits direkt kennt.
+    3. keanu <> empfehlung verhindert, dass Keanu sich selbst empfohlen bekommt.
+    4. DISTINCT vermeidet doppelte Namen in der Ausgabe.
+
+Ausgabe:
+    38 Empfehlungen, z.B. "James Marshall" bis "Clint Eastwood"
+
+--------------------------------------------------
+
+==================================================
+d) Die Bacon-Zahl ist die Länge der kürzesten Kette von Schauspielern, die gemeinsam in
+   einem Film spielen, zu Kevin Bacon. Berechnen Sie die Bacon-Zahl zwischen Kevin Bacon
+   und Keanu Reeves.
+==================================================
+
+Query:
+    MATCH p = shortestPath(
+      (keanu:Person {name: "Keanu Reeves"})-[:KNOWS*]-(bacon:Person {name: "Kevin Bacon"})
+    )
+    RETURN length(p) AS BaconZahl
+
+Erklärung:
+    1. shortestPath(...) findet den kürzesten Pfad zwischen zwei Nodes.
+    2. [:KNOWS*] erlaubt beliebig viele KNOWS-Schritte (ungerichtet durch - statt ->).
+    3. length(p) gibt die Anzahl der Beziehungen (Kanten) im Pfad zurück - das ist die Bacon-Zahl.
+
+Ausgabe:
+    BaconZahl: 2
+
+--------------------------------------------------
+
+==================================================
+e) Welche Schauspieler haben bereits in mindestens drei Filmen zusammen gespielt?
+==================================================
+
+Query:
+    MATCH (p1:Person)-[:ACTED_IN]->(movie:Movie)<-[:ACTED_IN]-(p2:Person)
+    WHERE p1.name < p2.name
+    WITH p1, p2, count(movie) AS gemeinsameFilme
+    WHERE gemeinsameFilme >= 3
+    RETURN p1.name AS Schauspieler1, p2.name AS Schauspieler2, gemeinsameFilme
+    ORDER BY gemeinsameFilme DESC
+
+Erklärung:
+    1. Finde alle Paare, die über ACTED_IN denselben Film teilen.
+    2. WHERE p1.name < p2.name verhindert doppelte Paare (z.B. A/B und B/A).
+    3. WITH ... count(movie) zählt die gemeinsamen Filme pro Paar.
+    4. WHERE gemeinsameFilme >= 3 filtert nur Paare mit mindestens 3 gemeinsamen Filmen.
+    5. Ergebnis wird absteigend nach Anzahl sortiert.
+
+Ausgabe:
+    7 Schauspieler-Paare gefunden.
+
+--------------------------------------------------
