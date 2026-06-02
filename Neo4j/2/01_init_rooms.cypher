@@ -16,14 +16,14 @@ FOR (r:Raum) REQUIRE r.raumNr IS UNIQUE;
 
 // O001 – O010
 CREATE (:Raum:Sonstige {raumNr: 'O001', etage: 0});
-CREATE (:Raum:Hoersaal {raumNr: 'O002', etage: 0, sitzplaetze: 0, ausstattung: ['Medientisch', 'Laserbeamer', 'Visualizer', 'Raumkamera', 'Deckenmikrofon', 'Umhaengemikrofon', 'Lautsprecher', 'Dozentenanschluss']});
-CREATE (:Raum:Buero {raumNr: 'O003', etage: 0, personen: []});
-CREATE (:Raum:Buero {raumNr: 'O004', etage: 0, personen: []});
+CREATE (:Raum:Hoersaal {raumNr: 'O002', etage: 0, sitzplaetze: 56, ausstattung: ['Medientisch', 'Laserbeamer', 'Visualizer', 'Raumkamera', 'Deckenmikrofon', 'Umhaengemikrofon', 'Lautsprecher', 'Dozentenanschluss']});
+CREATE (:Raum:Buero {raumNr: 'O003', etage: 0, personen: ['Simon Keller', 'Sebastian Bleichert']});
+CREATE (:Raum:Buero {raumNr: 'O004', etage: 0, personen: ['Klaus Eiermann', 'Mamadou Kane']});
 CREATE (:Raum:Sonstige {raumNr: 'O005', etage: 0});
 CREATE (:Raum:Sonstige {raumNr: 'O006', etage: 0});
-CREATE (:Raum:Hoersaal {raumNr: 'O007', etage: 0, sitzplaetze: 0, ausstattung: []});
-CREATE (:Raum:PCPool {raumNr: 'O008', etage: 0, sitzplaetze: 0, ausstattung: []});
-CREATE (:Raum:Sonstige {raumNr: 'O009', etage: 0});
+CREATE (:Raum:Hoersaal {raumNr: 'O007', etage: 0, sitzplaetze: 16, ausstattung: []});
+CREATE (:Raum:PCPool {raumNr: 'O008', etage: 0, sitzplaetze: 30, ausstattung: []});
+CREATE (:Raum:Rechenzentrum {raumNr: 'O009', etage: 0});
 CREATE (:Raum:Sonstige {raumNr: 'O010', etage: 0});
 
 // O083 – O089
@@ -31,12 +31,12 @@ CREATE (:Raum:Aufzug {raumNr: 'O083', etage: 0});
 CREATE (:Raum:Treppenhaus {raumNr: 'O085', etage: 0});
 CREATE (:Raum:Aufzug {raumNr: 'O086', etage: 0});
 CREATE (:Raum:Treppenhaus {raumNr: 'O087', etage: 0});
-CREATE (:Raum:Eingang {raumNr: 'O088', etage: 0, seite: ''});
-CREATE (:Raum:Eingang {raumNr: 'O089', etage: 0, seite: ''});
+CREATE (:Raum:Eingang {raumNr: 'O088', etage: 0, seite: 'ost'});
+CREATE (:Raum:Eingang {raumNr: 'O089', etage: 0, seite: 'sued'});
 
 // O091 – O093
 CREATE (:Raum:Toilette {raumNr: 'O091', etage: 0, typ: 'herren'});
-CREATE (:Raum:Sonstige {raumNr: 'O092', etage: 0});
+CREATE (:Raum:Toilette {raumNr: 'O092', etage: 0, typ: 'behindert'});
 CREATE (:Raum:Sonstige {raumNr: 'O093', etage: 0});
 
 
@@ -46,16 +46,16 @@ CREATE (:Raum:Sonstige {raumNr: 'O093', etage: 0});
 
 // O101 – O112
 CREATE (:Raum:Sonstige {raumNr: 'O101', etage: 1});
-CREATE (:Raum:Hoersaal {raumNr: 'O102', etage: 1, sitzplaetze: 0, ausstattung: []});
-CREATE (:Raum:Hoersaal {raumNr: 'O103', etage: 1, sitzplaetze: 0, ausstattung: ['Medientisch', 'Laserbeamer', 'Visualizer', 'Raumkamera', 'Deckenmikrofon', 'Handmikrofon', 'Umhaengemikrofon', 'Lautsprecher', 'Dozentenanschluss']});
-CREATE (:Raum:Buero {raumNr: 'O104', etage: 1, personen: []});
-CREATE (:Raum:Buero {raumNr: 'O105', etage: 1, personen: []});
-CREATE (:Raum:Buero {raumNr: 'O106', etage: 1, personen: []});
-CREATE (:Raum:Hoersaal {raumNr: 'O107', etage: 1, sitzplaetze: 0, ausstattung: []});
-CREATE (:Raum:Hoersaal {raumNr: 'O108', etage: 1, sitzplaetze: 0, ausstattung: []});
-CREATE (:Raum:Sonstige {raumNr: 'O109', etage: 1});
+CREATE (:Raum:Hoersaal {raumNr: 'O102', etage: 1, sitzplaetze: 50, ausstattung: []});
+CREATE (:Raum:Hoersaal {raumNr: 'O103', etage: 1, sitzplaetze: 50, ausstattung: ['Medientisch', 'Laserbeamer', 'Visualizer', 'Raumkamera', 'Deckenmikrofon', 'Handmikrofon', 'Umhaengemikrofon', 'Lautsprecher', 'Dozentenanschluss']});
+CREATE (:Raum:Buero {raumNr: 'O104', etage: 1, personen: ['Prof. Dr. Renato Dambe', 'Prof. Dr. Christian Wache']});
+CREATE (:Raum:Buero {raumNr: 'O105', etage: 1, personen: ['Prof. Dr. Ralf Schimkat', 'Prof. Dr. Stefan Sohn']});
+CREATE (:Raum:Buero {raumNr: 'O106', etage: 1, personen: ['Prof. Dr.-Ing. Jürgen Wäsch', 'Prof. Dr. Oliver Eck']});
+CREATE (:Raum:PCPool {raumNr: 'O107', etage: 1, sitzplaetze: 28, ausstattung: []});
+CREATE (:Raum:Hoersaal {raumNr: 'O108', etage: 1, sitzplaetze: 18, ausstattung: []});
+CREATE (:Raum:Rechenzentrum {raumNr: 'O109', etage: 1});
 CREATE (:Raum:Sonstige {raumNr: 'O110', etage: 1});
-CREATE (:Raum:Sonstige {raumNr: 'O111', etage: 1});
+CREATE (:Raum:Teekueche {raumNr: 'O111', etage: 1});
 CREATE (:Raum:Sonstige {raumNr: 'O112', etage: 1});
 
 // O183 – O188
@@ -66,7 +66,7 @@ CREATE (:Raum:Treppenhaus {raumNr: 'O187', etage: 1});
 CREATE (:Raum:Sonstige {raumNr: 'O188', etage: 1});
 
 // O191
-CREATE (:Raum:Toilette {raumNr: 'O191', etage: 1, typ: ''});
+CREATE (:Raum:Toilette {raumNr: 'O191', etage: 1, typ: 'damen'});
 
 
 // ============================================================
@@ -206,3 +206,19 @@ CREATE (a)-[:TREPPE {dauer: 30, barrierefrei: false}]->(b);
 
 MATCH (a:Raum {raumNr: 'O083'}), (b:Raum {raumNr: 'O183'})
 CREATE (a)-[:AUFZUG {dauer: 60, barrierefrei: true}]->(b);
+
+
+// ============================================================
+// VISUALISIERUNG (alle Knoten + Verbindungen anzeigen)
+// Im Neo4j Browser auf das Graph-Symbol (Kreis) klicken
+// ============================================================
+
+MATCH (n)-[r]->(m) RETURN n, r, m;
+
+
+// ============================================================
+// DATENBANK LEEREN (alle Nodes + Relationships löschen)
+// Vor erneutem Einspielen der Datei ausführen
+// ============================================================
+
+MATCH (n) DETACH DELETE n;

@@ -1,0 +1,113 @@
+==================================================
+a) Wie lange benötigt Hr. Eck von seinem Büro zum Büro von Hr. Eiermann?
+==================================================
+
+Query:
+    MATCH (eck:Raum), (eiermann:Raum)
+    WHERE 'Prof. Dr. Oliver Eck' IN eck.personen
+      AND 'Klaus Eiermann' IN eiermann.personen
+    MATCH p = shortestPath((eck)-[*]-(eiermann))
+    RETURN eck.raumNr AS Von,
+           eiermann.raumNr AS Nach,
+           reduce(dauer = 0, r IN relationships(p) | dauer + r.dauer) AS GesamtdauerSekunden,
+           [n IN nodes(p) | n.raumNr] AS Weg
+
+Erklärung:
+    1. Finde den Raum von Prof. Dr. Oliver Eck (O106) und den Raum von Klaus Eiermann (O004)
+       über die personen-Property.
+    2. shortestPath(...) findet den kürzesten Pfad (wenigste Kanten) zwischen beiden Räumen.
+    3. reduce() summiert die dauer-Property aller Beziehungen entlang des Pfades auf.
+    4. nodes(p) gibt die Liste aller Räume auf dem Weg aus.
+
+Ausgabe:
+Von	    Nach	GesamtdauerSekunden	    Weg
+"O106"	"O004"	50	                    ["O106", "O188", "O187", "O087", "O088", "O004"]
+
+
+--------------------------------------------------
+
+==================================================
+b) Welcher Weg ist der kürzeste Weg vom Eingang auf der Südseite zu einem
+   Poolraum in der ersten Etage mit mind. 25 Sitzplätzen?
+==================================================
+
+Query:
+    MATCH (start:Raum:Eingang {seite: 'sued'}), (pool:Raum:PCPool)
+    WHERE pool.etage = 1 AND pool.sitzplaetze >= 25
+    MATCH p = shortestPath((start)-[*]-(pool))
+    RETURN start.raumNr AS Von,
+           pool.raumNr AS Zielraum,
+           pool.sitzplaetze AS Sitzplaetze,
+           reduce(dauer = 0, r IN relationships(p) | dauer + r.dauer) AS GesamtdauerSekunden,
+           [n IN nodes(p) | n.raumNr] AS Weg
+    ORDER BY GesamtdauerSekunden
+    LIMIT 1
+
+Erklärung:
+    1. Startknoten ist der Eingang mit seite: 'sued' (O089).
+    2. Zielknoten sind alle :PCPool-Räume in Etage 1 mit mindestens 25 Sitzplätzen (→ O107, 28 Plätze).
+    3. shortestPath() findet den kürzesten Pfad (wenigste Kanten) zu jedem passenden Poolraum.
+    4. ORDER BY GesamtdauerSekunden LIMIT 1 gibt nur den zeitlich schnellsten Weg zurück.
+
+Ausgabe:
+Von	    Zielraum	Sitzplaetze	GesamtdauerSekunden	    Weg
+"O089"	"O107"	    28	        65	                    ["O089", "O001", "O085", "O185", "O101", "O108", "O109", "O110", "O107"]
+--------------------------------------------------
+
+==================================================
+c) Wie lange benötigt man auf dem kürzesten Weg von O107 zur nächsten Herrentoilette?
+==================================================
+
+Query:
+    MATCH (start:Raum {raumNr: 'O107'}), (wc:Raum:Toilette {typ: 'herren'})
+    MATCH p = shortestPath((start)-[*]-(wc))
+    RETURN start.raumNr AS Von,
+           wc.raumNr AS Zielraum,
+           reduce(dauer = 0, r IN relationships(p) | dauer + r.dauer) AS GesamtdauerSekunden,
+           [n IN nodes(p) | n.raumNr] AS Weg
+    ORDER BY GesamtdauerSekunden
+    LIMIT 1
+
+Erklärung:
+    1. Startknoten ist O107 (PC-Pool, 1. OG).
+    2. Zielknoten sind alle :Toilette-Räume mit typ: 'herren' (→ O091 im EG).
+    3. shortestPath() findet den Pfad mit den wenigsten Verbindungen.
+    4. reduce() berechnet die Gesamtdauer in Sekunden entlang dieses Weges.
+    5. ORDER BY ... LIMIT 1 gibt die nächstgelegene Herrentoilette zurück.
+
+Ausgabe:
+	Von	    Zielraum	GesamtdauerSekunden	    Weg
+    "O107"	"O091"	       65	                ["O107", "O191", "O112", "O188", "O187", "O087", "O088", "O093", "O091"]
+--------------------------------------------------
+
+==================================================
+d) Finden Sie den kürzesten Weg für einen Rollstuhlfahrer vom Eingang Ost zum Raum O102.
+==================================================
+
+Query:
+    MATCH p = (start:Raum:Eingang {seite: 'ost'})-[*]-(ziel:Raum {raumNr: 'O102'})
+    WHERE ALL(r IN relationships(p) WHERE r.barrierefrei = true)
+    RETURN [n IN nodes(p) | n.raumNr] AS Weg,
+           length(p) AS Schritte,
+           reduce(dauer = 0, r IN relationships(p) | dauer + r.dauer) AS GesamtdauerSekunden
+    ORDER BY Schritte
+    LIMIT 1
+
+Erklärung:
+    1. Startknoten ist der Osteingang (O088).
+    2. Zielknoten ist O102 (Hörsaal, 1. OG).
+    3. WHERE ALL(r IN relationships(p) WHERE r.barrierefrei = true) filtert den Pfad so,
+       dass ausschließlich barrierefreie Verbindungen genutzt werden.
+       → Treppen (barrierefrei: false) werden ausgeschlossen.
+       → Aufzug (barrierefrei: true) wird als einzige Etagen-Verbindung genutzt.
+    4. ORDER BY Schritte LIMIT 1 gibt den kürzesten barrierefreien Pfad zurück.
+
+    Hinweis: shortestPath() in Kombination mit WHERE-Filtern auf Relationship-Properties
+    kann unzuverlässig sein. Die Variable-Length-Path-Variante (wie oben) ist hier korrekt,
+    kann jedoch bei großen Graphen langsamer sein.
+
+Ausgabe:
+
+Weg	                                                                Schritte	GesamtdauerSekunden
+["O088", "O004", "O003", "O002", "O092", "O083", "O183", "O102"]	7	        90
+--------------------------------------------------
