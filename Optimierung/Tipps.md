@@ -1,5 +1,23 @@
 # Tipps – Transformationsregeln
 
+## Grundbegriffe: Tupel, Tupelgröße, Seite
+
+| Begriff | Bedeutung | Beispiel (Ferienwohnung) |
+|---------|-----------|---------------------------|
+| **Tupel** | Eine **Zeile** in einer Tabelle — ein einzelner Datensatz | Eine Ferienwohnung mit fnr, typ, rnr, … |
+| **Tupelgröße** | Speicherplatz **einer Zeile** in Bytes (alle Attribute zusammen) | 70 Bytes |
+| **Seite** (Block) | Feste **Leseeinheit** auf der Platte; die DB lädt immer ganze Seiten, nie einzelne Zeilen | 1.024 Bytes (laut Aufgabe) |
+
+**Seitenanzahl berechnen:**
+
+```
+b(Relation) = ⌈ Anzahl Tupel · Tupelgröße / Seitengröße ⌉
+```
+
+Beispiel Ferienwohnung: `⌈400.000 · 70 / 1.024⌉ = 27.344 Seiten`
+
+> Die DB rechnet intern in **Seiten** (I/O-Kosten), Statistiken liefern oft **Tupelanzahlen** (Kardinalität) — deshalb brauchst du beides.
+
 ## Relationale Algebra – Symbole
 
 | Symbol | Name | Entspricht in SQL |

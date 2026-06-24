@@ -42,4 +42,35 @@ Modellierung des O-Gebäudes der Hochschule (EG + 1. OG) als Neo4j-Graph und Bea
 
 ## Optimierung
 
-_(Platzhalter für zukünftige Inhalte)_
+Im Optimierung-Ordner wurden die Übungsaufgaben zur Abfrageoptimierung relationaler Datenbanken bearbeitet. Ausgangspunkt ist eine Ferienwohnungs-Datenbank (Relationen `Ferienwohnung`, `Region`, `Bild`) ohne definierte Indexe sowie eine SQL-Abfrage nach Bild-URLs für Standard-Ferienwohnungen in der Region Bodensee mit Bildern nach dem 01.03.2021.
+
+- **Ausgangslage** (`CurrentExerciseState.md`): Relationengrößen, Selektivitäten, Systemparameter (Seitengröße 1024 Bytes, Hauptspeicher 1000 Seiten)
+- **Hilfsmaterial** (`Tipps.md`): Transformationsregeln, Kardinalitätsberechnung, Symbole der relationalen Algebra
+
+### Aufgabe 1 – Auswertungspläne
+
+Anwendung von Transformationsregeln (Selektionen nach unten, Join-Reihenfolge) zur Ermittlung der zwei erfolgsversprechendsten Auswertungsbäume (`Loesung1.md`):
+
+- **Baum 1 – `(F' ⋈ B') ⋈ R'`** *(voraussichtlich optimal)*: Zuerst Join von gefilterter Ferienwohnung und Bild über `fnr` → 480 Tupel, dann Join mit Region (1 Tupel) über `rnr` → ~5 Tupel
+- **Baum 2 – `(F' ⋈ R') ⋈ B'`** *(Alternative)*: Zuerst Join Ferienwohnung und Region → 2.000 Tupel, dann Join mit Bild → ~5 Tupel
+
+Nach Selektionen: F' = 200.000, R' = 1, B' = 1.200 Tupel. Baum 1 minimiert das Zwischenergebnis nach dem ersten Join (480 vs. 2.000 Tupel).
+
+### Aufgabe 2 – Kostenabschätzung ohne Pipelining
+
+Kostenabschätzung in Seitenzugriffen (Lesen + Schreiben, materialisierte Zwischenergebnisse) mit Hash Join und einfachem Nested-Loop-Join (`Loesung2.md`):
+
+| Join-Algorithmus | Baum 1 | Baum 2 | Günstiger |
+|------------------|--------|--------|-----------|
+| Hash Join | 78.266 | 78.494 | Baum 1 |
+| Einfacher Join | 406.412 | 95.909 | Baum 2 |
+
+Die Selektionen dominieren mit 64.480 Seitenzugriffen (~82 % der Gesamtkosten). Mit Hash Join bestätigt sich Baum 1 als optimaler Plan; beim einfachen Join-Algorithmus wäre Baum 2 überraschend günstiger, da F'⋈B' dort besonders teuer ist.
+
+### Aufgabe 3 – Index-Empfehlung
+
+Bei genau einem Index: **B-Baum auf `Bild(datum)`** (`Loesung3.md`):
+
+- Stärkster Einzelhebel bei der Selektion `datum > '01.03.2021'` (Selektivität 0,001) auf der zweitgrößten Relation (23.438 Seiten)
+- Range-Query eignet sich ideal für einen B-Baum; Ersparnis grob ~23.000 Seitenzugriffe gegenüber Full Table Scan
+- Alternativen weniger sinnvoll: `Ferienwohnung(typ)` nur 50 % selektiv, `Region(name)` nur 1 Seite, Join-Attribute bringen wenig, da B' und R' bereits in den Hauptspeicher passen
